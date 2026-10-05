@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<communicationContent>
+  <description>
+    This file stores structured communication exercises.
+    It is intentionally separate from the website interface.
+  </description>
+  <scenario id="workplace">
+    <category>Everyday Conversation</category>
+    <title>Meeting someone new at work</title>
+    <prompt>A new colleague introduces themselves. Respond naturally and keep the conversation going.</prompt>
+  </scenario>
+  <scenario id="teacher">
+    <category>Everyday Conversation</category>
+    <title>Asking a teacher for clarification</title>
+    <prompt>Ask your teacher for clarification about something you do not understand.</prompt>
+  </scenario>
+  <scenario id="customer">
+    <category>Workplace</category>
+    <title>Helping a customer</title>
+    <prompt>A customer asks for help. Respond professionally and guide the conversation.</prompt>
+  </scenario>
+</communicationContent>

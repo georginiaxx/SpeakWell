@@ -1,0 +1,1 @@
+SpeakWell polished edition. Open index.html to preview locally, or upload all files to a static website host to use it as a normal web address.
