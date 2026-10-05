@@ -1,4 +1,18 @@
-const state = JSON.parse(localStorage.getItem("speakwellProgress") || '{"sessions":0,"scores":[],"words":[],"focus":{}}');
+const STORAGE_KEY = "speakwellProgress";
+function loadState(){
+  const fresh = {sessions:0,scores:[],words:[],focus:{}};
+  try{
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if(!saved || typeof saved!=="object") return fresh;
+    return {
+      sessions: Number.isFinite(saved.sessions) ? saved.sessions : 0,
+      scores: Array.isArray(saved.scores) ? saved.scores.filter(Number.isFinite) : [],
+      words: Array.isArray(saved.words) ? saved.words.filter(Number.isInteger) : [],
+      focus: (saved.focus && typeof saved.focus==="object") ? saved.focus : {}
+    };
+  }catch(e){ return fresh; } // corrupted data or storage blocked (e.g. private mode)
+}
+const state = loadState();
 
 const conversationData = [
   {id:"workplace", title:"Meeting someone new at work", prompt:"A new colleague introduces themselves: “Hi, I’m Alex. I don’t think we’ve met before.” Respond naturally and keep the conversation going."},
@@ -64,16 +78,52 @@ const vocabulary = [
   ["That makes sense. Could I also ask…?","Helps you keep a conversation moving naturally.","Conversation"]
 ];
 
-function save(){ localStorage.setItem("speakwellProgress", JSON.stringify(state)); updateDashboard(); }
-
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.page===id));
-  window.scrollTo({top:0,behavior:"smooth"});
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* storage unavailable: keep working in memory */ }
+  updateDashboard();
 }
-document.querySelectorAll(".nav-btn").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
-document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
+
+/* ---------- Navigation ---------- */
+const PAGE_IDS = ["dashboard","conversation","interview","writing","vocabulary"];
+const sidebar = document.getElementById("sidebar");
+const backdrop = document.getElementById("backdrop");
+const menuBtn = document.getElementById("mobileMenu");
+
+function setMenu(open){
+  sidebar.classList.toggle("open", open);
+  backdrop.classList.toggle("show", open);
+  document.body.classList.toggle("menu-open", open);
+  menuBtn.setAttribute("aria-expanded", String(open));
+}
+
+function showPage(id, opts={}){
+  if(!PAGE_IDS.includes(id)) id = "dashboard";
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active", p.id===id));
+  document.querySelectorAll(".nav").forEach(b=>{
+    const on = b.dataset.page===id;
+    b.classList.toggle("active", on);
+    if(on) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+  });
+  setMenu(false);
+  if(!opts.fromHash && location.hash !== "#"+id){
+    try{ history.replaceState(null,"","#"+id); }catch(e){ /* file:// or sandboxed */ }
+  }
+  window.scrollTo(0,0);
+}
+
+// One delegated listener handles every nav button, CTA and quick-start card.
+document.addEventListener("click",e=>{
+  const t = e.target.closest("[data-page],[data-go]");
+  if(!t) return;
+  e.preventDefault();
+  showPage(t.dataset.page || t.dataset.go);
+});
+menuBtn.addEventListener("click",()=>setMenu(!sidebar.classList.contains("open")));
+backdrop.addEventListener("click",()=>setMenu(false));
+document.getElementById("closeMenu").addEventListener("click",()=>setMenu(false));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") setMenu(false); });
+window.addEventListener("resize",()=>{ if(window.innerWidth>700) setMenu(false); });
+window.addEventListener("hashchange",()=>showPage(location.hash.slice(1),{fromHash:true}));
 
 function basicAssessment(text, type){
   const clean=text.trim();
@@ -85,9 +135,9 @@ function basicAssessment(text, type){
   if(words>=25) score+=8;
   if(sentences>=2) score+=8;
   if(/[.!?]$/.test(clean)) score+=5;
-  if(type==="interview" && /(because|example|experience|learned|helped|created|worked)/i.test(clean)) score+=12;
-  if(type==="conversation" && /(you|your|how|what|nice|thanks|also)/i.test(clean)) score+=8;
-  if(type==="writing" && /(hello|hi|dear)/i.test(clean)) score+=5;
+  if(type==="interview" && /\b(because|example|experience|learned|helped|created|worked)\b/i.test(clean)) score+=12;
+  if(type==="conversation" && /\b(you|your|how|what|nice|thanks|also)\b/i.test(clean)) score+=8;
+  if(type==="writing" && /\b(hello|hi|dear)\b/i.test(clean)) score+=5;
   score=Math.min(100,score);
   const strengths=[];
   const improvements=[];
@@ -97,17 +147,17 @@ function basicAssessment(text, type){
   else improvements.push("Use a second sentence to explain or develop your point.");
   if(/[.!?]$/.test(clean)) strengths.push("Your punctuation gives the response a clear ending.");
   else improvements.push("Finish complete sentences with punctuation.");
-  if(type==="interview" && !/(because|example|experience|learned|helped|created|worked)/i.test(clean))
+  if(type==="interview" && !/\b(because|example|experience|learned|helped|created|worked)\b/i.test(clean))
     improvements.push("For interviews, include evidence from something you have actually done.");
-  if(type==="conversation" && !/(you|your|how|what)/i.test(clean))
+  if(type==="conversation" && !/\?/.test(clean) && !/\b(you|your|how|what)\b/i.test(clean))
     improvements.push("Try adding a question so the other person has an easy way to continue the conversation.");
-  if(type==="writing" && /(very|really|just|like)/i.test(lower))
+  if(type==="writing" && /\b(very|really|just|like)\b/i.test(lower))
     improvements.push("Check for filler words such as “very”, “really”, “just” or “like” and remove any that do not add meaning.");
   return {score,strengths,improvements,words};
 }
 
 function renderFeedback(el,title,result){
-  el.innerHTML=`<h2>${title}</h2><div class="score">${result.score}/100</div>
+  el.innerHTML=`<h3>${title}</h3><div class="score">${result.score}/100</div>
   <p><strong>What went well</strong></p><ul>${result.strengths.map(x=>`<li class="good">${x}</li>`).join("")}</ul>
   <p><strong>Next improvements</strong></p><ul>${result.improvements.map(x=>`<li class="warn">${x}</li>`).join("")}</ul>
   <p class="muted">This first version uses transparent rule-based feedback. It is deliberately not pretending to be an AI judge.</p>`;
@@ -155,19 +205,24 @@ document.getElementById("writingSubmit").addEventListener("click",()=>{
   renderFeedback(document.getElementById("writingFeedback"),"Writing feedback",basicAssessment(text,"writing"));
 });
 
-document.getElementById("vocabList").innerHTML=vocabulary.map((v,i)=>`
+const vocabList=document.getElementById("vocabList");
+vocabList.innerHTML=vocabulary.map((v,i)=>{
+  const done=state.words.includes(i);
+  return `
 <article class="vocab-card">
 <span class="tag">${v[2]}</span>
 <div class="phrase">${v[0]}</div>
 <p>${v[1]}</p>
-<button class="secondary learn-btn" data-index="${i}">${state.words.includes(i)?"Learned ✓":"Mark as learned"}</button>
-</article>`).join("");
+<button type="button" class="secondary learn-btn${done?" learned":""}" data-index="${i}">${done?"Learned ✓":"Mark as learned"}</button>
+</article>`;}).join("");
 
-document.querySelectorAll(".learn-btn").forEach(btn=>btn.addEventListener("click",()=>{
+vocabList.addEventListener("click",e=>{
+  const btn=e.target.closest(".learn-btn");
+  if(!btn) return;
   const i=Number(btn.dataset.index);
   if(!state.words.includes(i)) state.words.push(i);
   btn.textContent="Learned ✓"; btn.classList.add("learned"); save();
-}));
+});
 
 function updateDashboard(){
   document.getElementById("sessions").textContent=state.sessions;
@@ -185,3 +240,4 @@ function updateDashboard(){
   focus.innerHTML=suggestions.map(s=>`<p>⚠️ ${s}</p>`).join("") || "<p>You're building a strong baseline. Keep practising.</p>";
 }
 updateDashboard();
+showPage(location.hash.slice(1),{fromHash:true}); // honour #hash on load, default Overview

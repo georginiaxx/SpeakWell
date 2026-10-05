@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>SpeakWell — Communication Trainer</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app-shell">
-  <aside class="sidebar">
-    <div class="logo"><span class="logo-mark">S</span><div><b>SpeakWell</b><small>Communication Lab</small></div></div>
-    <nav>
-      <button class="nav active" data-page="dashboard"><span>⌂</span>Overview</button>
-      <button class="nav" data-page="conversation"><span>◌</span>Daily Practice</button>
-      <button class="nav" data-page="interview"><span>◎</span>Interview Coach</button>
-      <button class="nav" data-page="writing"><span>✎</span>Writing Lab</button>
-      <button class="nav" data-page="vocabulary"><span>✦</span>Vocabulary</button>
+  <div class="backdrop" id="backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><span class="logo-mark">S</span><div><b>SpeakWell</b><small>Communication Lab</small></div><button type="button" class="close-menu" id="closeMenu" aria-label="Close menu">✕</button></div>
+    <nav aria-label="Main navigation">
+      <button type="button" class="nav active" data-page="dashboard"><span>⌂</span>Overview</button>
+      <button type="button" class="nav" data-page="conversation"><span>◌</span>Daily Practice</button>
+      <button type="button" class="nav" data-page="interview"><span>◎</span>Interview Coach</button>
+      <button type="button" class="nav" data-page="writing"><span>✎</span>Writing Lab</button>
+      <button type="button" class="nav" data-page="vocabulary"><span>✦</span>Vocabulary</button>
     </nav>
     <div class="side-note"><b>Keep practising.</b><br>Small improvements become natural habits.</div>
   </aside>
 
   <main>
-    <header class="mobile-head"><b>SpeakWell</b><button id="mobileMenu">☰</button></header>
+    <header class="mobile-head"><b>SpeakWell</b><button type="button" id="mobileMenu" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰</button></header>
 
     <section id="dashboard" class="page active">
       <div class="welcome">
         <div><span class="pill">PERSONAL COMMUNICATION TRAINER</span>
         <h1>Speak with more<br><em>clarity & confidence.</em></h1>
         <p>Practise the conversations, interviews and professional writing situations you actually face.</p>
-        <button class="cta" data-go="conversation">Start today's practice <span>→</span></button></div>
+        <button type="button" class="cta" data-go="conversation">Start today's practice <span>→</span></button></div>
         <div class="orb"><div class="orb-inner"><small>OVERALL</small><strong id="overallScore">0</strong><span>/ 100</span></div></div>
       </div>
 
@@ -46,8 +47,8 @@
         </div>
         <div class="panel">
           <div class="panel-head"><div><small>QUICK START</small><h3>Choose a session</h3></div></div>
-          <button class="quick" data-go="interview"><span>◎</span><div><b>Interview Coach</b><small>Practise for a specific role</small></div><strong>→</strong></button>
-          <button class="quick" data-go="writing"><span>✎</span><div><b>Writing Lab</b><small>Improve emails & messages</small></div><strong>→</strong></button>
+          <button type="button" class="quick" data-go="interview"><span>◎</span><div><b>Interview Coach</b><small>Practise for a specific role</small></div><strong>→</strong></button>
+          <button type="button" class="quick" data-go="writing"><span>✎</span><div><b>Writing Lab</b><small>Improve emails & messages</small></div><strong>→</strong></button>
         </div>
       </div>
     </section>
@@ -59,7 +60,7 @@
           <label>SCENARIO</label><select id="conversationSelect"></select>
           <div id="conversationPrompt" class="scenario"></div>
           <label>YOUR RESPONSE</label><textarea id="conversationAnswer" placeholder="Write what you would naturally say..."></textarea>
-          <button class="cta full" id="conversationSubmit">Assess my response →</button>
+          <button type="button" class="cta full" id="conversationSubmit">Assess my response →</button>
         </div>
         <div class="panel feedback" id="conversationFeedback"><div class="empty-icon">✦</div><h3>Your feedback will appear here</h3><p>Write your response first. SpeakWell will look at detail, sentence development and conversational flow.</p></div>
       </div>
@@ -71,9 +72,9 @@
         <div class="panel exercise">
           <label>JOB ROLE</label><select id="jobSelect"><option>Digital Marketing Apprentice</option><option>Retail Assistant</option><option>Hospitality Assistant</option><option>Business Apprentice</option><option>Media Assistant</option><option>IT Apprentice</option></select>
           <div id="interviewQuestion" class="scenario"></div>
-          <button class="ghost" id="nextQuestion">↻ New question</button>
+          <button type="button" class="ghost" id="nextQuestion">↻ New question</button>
           <label>YOUR ANSWER</label><textarea id="interviewAnswer" placeholder="Answer in your own words. Don't try to sound perfect."></textarea>
-          <button class="cta full" id="interviewSubmit">Assess my answer →</button>
+          <button type="button" class="cta full" id="interviewSubmit">Assess my answer →</button>
         </div>
         <div class="panel feedback" id="interviewFeedback"><div class="empty-icon">◎</div><h3>Interview feedback</h3><p>You'll get feedback on relevance, evidence, development and professional communication.</p></div>
       </div>
@@ -86,7 +87,7 @@
           <label>TASK</label><select id="writingType"><option value="email">Email to a manager</option><option value="teacher">Message to a teacher</option><option value="followup">Interview follow-up</option><option value="linkedin">Professional LinkedIn message</option></select>
           <div id="writingPrompt" class="scenario"></div>
           <label>YOUR WRITING</label><textarea id="writingAnswer" placeholder="Write your message..."></textarea>
-          <button class="cta full" id="writingSubmit">Proofread & refine →</button>
+          <button type="button" class="cta full" id="writingSubmit">Proofread & refine →</button>
         </div>
         <div class="panel feedback" id="writingFeedback"><div class="empty-icon">✎</div><h3>Writing feedback</h3><p>You'll see suggestions for clarity, tone, sentence structure and repetition.</p></div>
       </div>
