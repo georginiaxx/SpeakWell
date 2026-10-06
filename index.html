@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="SpeakWell: a personal communication trainer for conversations, interviews and professional writing.">
 <title>SpeakWell — Communication Trainer</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <div class="app-shell">
   <div class="backdrop" id="backdrop"></div>
   <aside class="sidebar" id="sidebar">
@@ -17,88 +19,141 @@
       <button type="button" class="nav" data-page="interview"><span>◎</span>Interview Coach</button>
       <button type="button" class="nav" data-page="writing"><span>✎</span>Writing Lab</button>
       <button type="button" class="nav" data-page="vocabulary"><span>✦</span>Vocabulary</button>
+      <button type="button" class="nav" data-page="history"><span>☰</span>History</button>
+      <button type="button" class="nav" data-page="profile"><span>●</span>Profile</button>
     </nav>
     <div class="side-note"><b>Keep practising.</b><br>Small improvements become natural habits.</div>
   </aside>
 
-  <main>
+  <main id="main" tabindex="-1">
     <header class="mobile-head"><b>SpeakWell</b><button type="button" id="mobileMenu" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰</button></header>
+    <div id="storageNotice" class="notice" role="status" hidden></div>
+    <noscript><div class="notice">SpeakWell needs JavaScript to run. Please enable it in your browser.</div></noscript>
 
-    <section id="dashboard" class="page active">
+    <section id="dashboard" class="page active" aria-labelledby="h-dashboard">
       <div class="welcome">
         <div><span class="pill">PERSONAL COMMUNICATION TRAINER</span>
-        <h1>Speak with more<br><em>clarity & confidence.</em></h1>
-        <p>Practise the conversations, interviews and professional writing situations you actually face.</p>
-        <button type="button" class="cta" data-go="conversation">Start today's practice <span>→</span></button></div>
-        <div class="orb"><div class="orb-inner"><small>OVERALL</small><strong id="overallScore">0</strong><span>/ 100</span></div></div>
+        <h1 id="h-dashboard" tabindex="-1">Speak with more<br><em>clarity &amp; confidence.</em></h1>
+        <p id="welcomeLine">Practise the conversations, interviews and professional writing situations you actually face.</p>
+        <button type="button" class="cta" data-go="conversation" id="startPractice">Start today's practice <span>→</span></button></div>
+        <div class="orb" title="Recency-weighted average of your last 10 practices"><div class="orb-inner"><small>OVERALL</small><strong id="overallScore">–</strong><span>/ 100</span></div></div>
       </div>
 
       <div class="section-title"><div><small>YOUR PROGRESS</small><h2>Build your communication skills</h2></div></div>
       <div class="stats">
-        <div class="stat-card"><span class="icon blue">◌</span><div><small>Sessions</small><strong id="sessions">0</strong></div><i>Practice</i></div>
-        <div class="stat-card"><span class="icon purple">↗</span><div><small>Average score</small><strong id="averageScore">0</strong></div><i>/ 100</i></div>
+        <div class="stat-card"><span class="icon blue">◌</span><div><small>Practice sessions</small><strong id="sessions">0</strong></div><i>Total</i></div>
+        <div class="stat-card"><span class="icon purple">↗</span><div><small>Average score</small><strong id="averageScore">–</strong></div><i>/ 100</i></div>
+        <div class="stat-card"><span class="icon green">★</span><div><small>Best score</small><strong id="bestScore">–</strong></div><i>/ 100</i></div>
         <div class="stat-card"><span class="icon pink">✦</span><div><small>Phrases learned</small><strong id="wordsLearned">0</strong></div><i>Words</i></div>
       </div>
 
       <div class="lower-grid">
         <div class="panel">
-          <div class="panel-head"><div><small>YOUR DEVELOPMENT</small><h3>Focus areas</h3></div><span class="tiny">Updates as you practise</span></div>
-          <div id="focusAreas" class="focus-empty">Complete a few exercises and SpeakWell will identify areas worth working on.</div>
+          <div class="panel-head"><div><small>YOUR DEVELOPMENT</small><h3>Communication profile</h3></div><span class="tiny" id="profileBasis">Updates as you practise</span></div>
+          <div id="focusBox" class="focus-empty" aria-live="polite">Complete 3 practices and SpeakWell will identify your current focus.</div>
+          <div id="skillBars" class="skill-bars"></div>
+          <p class="tiny note-line">Higher is better for every skill. Based on your most recent attempts.</p>
         </div>
         <div class="panel">
           <div class="panel-head"><div><small>QUICK START</small><h3>Choose a session</h3></div></div>
+          <button type="button" class="quick" data-go="conversation"><span>◌</span><div><b>Daily Practice</b><small>Everyday conversations</small></div><strong>→</strong></button>
           <button type="button" class="quick" data-go="interview"><span>◎</span><div><b>Interview Coach</b><small>Practise for a specific role</small></div><strong>→</strong></button>
-          <button type="button" class="quick" data-go="writing"><span>✎</span><div><b>Writing Lab</b><small>Improve emails & messages</small></div><strong>→</strong></button>
+          <button type="button" class="quick" data-go="writing"><span>✎</span><div><b>Writing Lab</b><small>Improve emails &amp; messages</small></div><strong>→</strong></button>
+          <button type="button" class="quick" data-go="vocabulary"><span>✦</span><div><b>Vocabulary</b><small>Learn natural phrases</small></div><strong>→</strong></button>
         </div>
+      </div>
+
+      <div class="panel chart-panel">
+        <div class="panel-head"><div><small>IMPROVEMENT OVER TIME</small><h3>Weekly average score</h3></div><span class="tiny" id="trendNote"></span></div>
+        <div id="progressChart" class="chart" role="img" aria-label="Weekly average score chart"></div>
+      </div>
+
+      <div class="lower-grid even">
+        <div class="panel"><div class="panel-head"><div><small>RECENT ACTIVITY</small><h3>Your latest practice</h3></div><button type="button" class="ghost small" data-go="history">View all</button></div><div id="recentList"></div></div>
+        <div class="panel"><div class="panel-head"><div><small>MILESTONES</small><h3>Achievements</h3></div><span class="tiny" id="achCount"></span></div><div id="achievements" class="ach-grid"></div></div>
       </div>
     </section>
 
-    <section id="conversation" class="page">
-      <div class="page-intro"><span class="pill">DAILY PRACTICE</span><h1>Everyday conversations</h1><p>Say what you would actually say. Then use the feedback to improve it.</p></div>
-      <div class="work-grid">
-        <div class="panel exercise">
-          <label>SCENARIO</label><select id="conversationSelect"></select>
-          <div id="conversationPrompt" class="scenario"></div>
-          <label>YOUR RESPONSE</label><textarea id="conversationAnswer" placeholder="Write what you would naturally say..."></textarea>
-          <button type="button" class="cta full" id="conversationSubmit">Assess my response →</button>
+    <section id="conversation" class="page" aria-labelledby="h-conversation">
+      <div class="page-intro"><span class="pill">DAILY PRACTICE</span><h1 id="h-conversation" tabindex="-1">Everyday conversations</h1><p>Say what you would actually say. Then use the feedback to improve it. Try first; examples come after your attempt.</p></div>
+      <div class="work-grid" id="convMount"></div>
+    </section>
+
+    <section id="interview" class="page" aria-labelledby="h-interview">
+      <div class="page-intro"><span class="pill">INTERVIEW COACH</span><h1 id="h-interview" tabindex="-1">Practise for the role.</h1><p>Enter any role, choose your level and interview type, then answer as though the interviewer is sitting opposite you.</p></div>
+      <div class="panel setup" id="intSetup">
+        <div class="setup-grid">
+          <div class="field wide"><label for="intRole">WHAT ROLE ARE YOU PREPARING FOR?</label><input type="text" id="intRole" list="intRoleList" maxlength="80" autocomplete="off" placeholder="e.g. Social Media Manager, Barista, Architect…"><datalist id="intRoleList"></datalist></div>
+          <div class="field"><label for="intLevel">EXPERIENCE LEVEL</label><select id="intLevel"></select></div>
+          <div class="field"><label for="intType">INTERVIEW TYPE</label><select id="intType"></select></div>
         </div>
-        <div class="panel feedback" id="conversationFeedback"><div class="empty-icon">✦</div><h3>Your feedback will appear here</h3><p>Write your response first. SpeakWell will look at detail, sentence development and conversational flow.</p></div>
+        <div class="chips-label">Suggested roles</div><div id="intChips" class="chips"></div>
+        <p id="intSetupError" class="form-error" role="alert"></p>
+        <button type="button" class="cta" id="intStart">Start interview →</button>
+      </div>
+      <div id="intSession" hidden>
+        <div class="session-bar"><div><b id="intRoleLabel"></b><small id="intProgress"></small></div><button type="button" class="ghost small" id="intChange">Change role or settings</button></div>
+        <div class="work-grid" id="intMount"></div>
+        <div class="panel" id="intSummary" hidden></div>
       </div>
     </section>
 
-    <section id="interview" class="page">
-      <div class="page-intro"><span class="pill">INTERVIEW COACH</span><h1>Practise for the role.</h1><p>Choose a job and answer as though the interviewer is sitting opposite you.</p></div>
-      <div class="work-grid">
-        <div class="panel exercise">
-          <label>JOB ROLE</label><select id="jobSelect"><option>Digital Marketing Apprentice</option><option>Retail Assistant</option><option>Hospitality Assistant</option><option>Business Apprentice</option><option>Media Assistant</option><option>IT Apprentice</option></select>
-          <div id="interviewQuestion" class="scenario"></div>
-          <button type="button" class="ghost" id="nextQuestion">↻ New question</button>
-          <label>YOUR ANSWER</label><textarea id="interviewAnswer" placeholder="Answer in your own words. Don't try to sound perfect."></textarea>
-          <button type="button" class="cta full" id="interviewSubmit">Assess my answer →</button>
-        </div>
-        <div class="panel feedback" id="interviewFeedback"><div class="empty-icon">◎</div><h3>Interview feedback</h3><p>You'll get feedback on relevance, evidence, development and professional communication.</p></div>
-      </div>
+    <section id="writing" class="page" aria-labelledby="h-writing">
+      <div class="page-intro"><span class="pill">WRITING LAB</span><h1 id="h-writing" tabindex="-1">Write it yourself.</h1><p>Then proofread and refine. The goal is to learn what makes professional writing work.</p></div>
+      <div class="work-grid" id="wriMount"></div>
     </section>
 
-    <section id="writing" class="page">
-      <div class="page-intro"><span class="pill">WRITING LAB</span><h1>Write it yourself.</h1><p>Then refine it. The goal is to learn what makes professional writing work.</p></div>
-      <div class="work-grid">
-        <div class="panel exercise">
-          <label>TASK</label><select id="writingType"><option value="email">Email to a manager</option><option value="teacher">Message to a teacher</option><option value="followup">Interview follow-up</option><option value="linkedin">Professional LinkedIn message</option></select>
-          <div id="writingPrompt" class="scenario"></div>
-          <label>YOUR WRITING</label><textarea id="writingAnswer" placeholder="Write your message..."></textarea>
-          <button type="button" class="cta full" id="writingSubmit">Proofread & refine →</button>
-        </div>
-        <div class="panel feedback" id="writingFeedback"><div class="empty-icon">✎</div><h3>Writing feedback</h3><p>You'll see suggestions for clarity, tone, sentence structure and repetition.</p></div>
-      </div>
-    </section>
-
-    <section id="vocabulary" class="page">
-      <div class="page-intro"><span class="pill">VOCABULARY</span><h1>Useful words. Natural phrases.</h1><p>Build a vocabulary you can actually use instead of memorising fancy words.</p></div>
+    <section id="vocabulary" class="page" aria-labelledby="h-vocabulary">
+      <div class="page-intro"><span class="pill">VOCABULARY</span><h1 id="h-vocabulary" tabindex="-1">Useful words. Natural phrases.</h1><p>Practise a phrase in your own sentence, then mark it learned. Learned phrases are replaced with new ones.</p></div>
+      <div class="vocab-bar"><div class="field"><label for="vocabCat">PRACTISE PHRASES FROM</label><select id="vocabCat"></select></div><p id="vocabMeta" class="tiny"></p></div>
       <div id="vocabList" class="vocab-grid"></div>
+      <details class="panel learned-box" id="learnedBox"><summary id="learnedSummary">Learned phrases</summary><div id="learnedList"></div></details>
+    </section>
+
+    <section id="history" class="page" aria-labelledby="h-history">
+      <div class="page-intro"><span class="pill">HISTORY</span><h1 id="h-history" tabindex="-1">Your practice history.</h1><p>Review what you wrote, the feedback you got, and how your attempts improved. Saved on this device only.</p></div>
+      <div class="filters" id="historyFilters" role="group" aria-label="Filter history">
+        <button type="button" class="chip active" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="chip" data-filter="conversation" aria-pressed="false">Conversation</button>
+        <button type="button" class="chip" data-filter="interview" aria-pressed="false">Interview</button>
+        <button type="button" class="chip" data-filter="writing" aria-pressed="false">Writing</button>
+        <button type="button" class="chip" data-filter="vocabulary" aria-pressed="false">Vocabulary</button>
+      </div>
+      <div id="historyList"></div>
+      <button type="button" class="ghost" id="historyMore" hidden>Show more</button>
+    </section>
+
+    <section id="profile" class="page" aria-labelledby="h-profile">
+      <div class="page-intro"><span class="pill">PROFILE &amp; SETTINGS</span><h1 id="h-profile" tabindex="-1">Make it yours.</h1><p>Everything here is optional and stays in this browser. SpeakWell only uses it to make practice more relevant.</p></div>
+      <div class="work-grid">
+        <div class="panel exercise">
+          <label for="pfName">PREFERRED NAME</label><input type="text" id="pfName" maxlength="60" autocomplete="given-name">
+          <label for="pfInterests">CAREER INTERESTS</label><input type="text" id="pfInterests" maxlength="300" placeholder="e.g. marketing, retail, teaching">
+          <label for="pfRoles">ROLES YOU ARE PREPARING FOR (separate with commas)</label><input type="text" id="pfRoles" maxlength="300" placeholder="e.g. Barista, Receptionist">
+          <label for="pfGoals">COMMUNICATION GOALS</label><textarea id="pfGoals" maxlength="500" placeholder="e.g. Sound more confident in interviews" style="min-height:90px"></textarea>
+          <label for="pfConfidence">CURRENT CONFIDENCE LEVEL</label>
+          <select id="pfConfidence"><option value="">Prefer not to say</option><option value="low">Low</option><option value="building">Building</option><option value="moderate">Moderate</option><option value="confident">Confident</option><option value="very-confident">Very confident</option></select>
+          <button type="button" class="cta full" id="pfSave">Save profile</button>
+          <p id="pfSaved" class="form-ok" role="status"></p>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div><small>ASSESSMENT</small><h3>How scoring works</h3></div></div>
+          <p class="body-text" id="engineStatus"></p>
+          <p class="body-text">Every submission is scored from the words you actually wrote, across nine skills plus an overall effectiveness score. Nothing is cached, so rewriting an answer gives a new score. SpeakWell never judges accent.</p>
+          <div class="panel-head" style="margin-top:22px"><div><small>YOUR DATA</small><h3>Backup &amp; reset</h3></div></div>
+          <p class="body-text">Your history, profile and progress are stored only in this browser (localStorage).</p>
+          <div class="btn-row"><button type="button" class="ghost" id="exportBtn">Export my data</button><label class="ghost filebtn" for="importFile">Import data</label><input type="file" id="importFile" accept="application/json,.json" hidden><button type="button" class="ghost danger" id="resetBtn">Reset all data</button></div>
+          <div id="resetConfirm" class="confirm" hidden><p>This permanently deletes your profile, history and progress on this device.</p><button type="button" class="ghost danger" id="resetYes">Yes, delete everything</button> <button type="button" class="ghost" id="resetNo">Cancel</button></div>
+          <p id="dataMsg" class="form-ok" role="status"></p>
+        </div>
+      </div>
     </section>
   </main>
 </div>
-<script src="app.js"></script>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="js/content.js"></script>
+<script src="js/assess.js"></script>
+<script src="js/store.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
